@@ -1,0 +1,138 @@
+{% load url from future %}
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="utf-8"> 
+    <title>FTP</title> 
+    <style>
+        /* BASE */
+        
+        html { font-size:100%; }
+        body { padding: 40px 0 20px; margin: 0; font: 13px/1.333 "lucida grande", tahoma, sans-serif; color: #333; background: #fff;}
+
+        a { color: #980905; }
+        a:hover, a:focus, a:active { text-decoration: none; }
+
+        h1 { margin: 0 0 0.5em; font-size: 28px;  font-weight: normal; }
+        h2 { margin: 0 0 0.75em; font-size: 15px; }
+        p { margin: 0 0 1.333em; }
+        em { font-style: italic; }
+        table { border-collapse: separate; border-spacing: 0; margin:  0; vertical-align: middle; }
+        th { font-weight: bold; }
+        th, td { padding: 5px 25px 5px 5px; text-align: left; vertical-align: middle; }
+        pre, code { font-family: monospace, sans-serif; font-size: 1em; color:#080; }
+        pre { white-space: pre; white-space: pre-wrap; word-wrap: break-word; }
+        ul { list-style: square; margin: 1em 0 1em 0px; padding: 0; }
+
+        /* TEMPLATE */
+
+        .container { position:relative; overflow:hidden; max-width: 600px; _width: 600px; padding: 40px 60px; border: 1px solid #ccc; margin: 0 auto; background: #fff; }
+
+        .container pre,
+        .container .prettyprint { padding: 0; border: 0; margin: 0 0 20px; background: #fff; }
+
+        .header { padding-right: 80px; }
+        .header p { font-size: 18px; color: #808080; }
+
+        .section { margin: 40px 0 20px; }
+
+        .example { padding: 20px; border: 1px solid #ccc; margin: 10px -20px 20px; }
+        .example p { margin: 15px 0 0; }
+        .example p:first-child { margin: 0; }
+
+        /* SMALL */
+
+        @media (max-width: 500px) {
+            body { padding: 0; }
+            .container { padding: 20px 30px; }
+        }
+    </style>
+    
+    <link rel="stylesheet" href="{{ STATIC_URL }}cannen/css/auth-buttons.css">
+    
+    <!-- prettyify -->
+    <link rel="stylesheet" href="http://google-code-prettify.googlecode.com/svn/trunk/src/prettify.css"> 
+    <script src="http://google-code-prettify.googlecode.com/svn/trunk/src/prettify.js"></script>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+<script type="text/javascript">
+function refresh()
+{
+	$('#info').load('info',
+					function()
+					{
+						// handle async links
+						$('a.asynclink').click(
+							function (event)
+							{
+								event.preventDefault();
+								
+								var anchor = $(this);
+								$.get(anchor.attr('href'),
+									  function (data)
+									  {
+										  refresh();
+									  }
+								);
+							}
+						);
+
+					}
+	);
+}
+
+$(document).ready(
+	function (event)
+	{
+		refresh();
+		var auto_refresh = setInterval(refresh, 2500); // every 2.5 seconds
+		
+		// handle async forms ajax-like
+		$('form.asyncform').submit(
+			function (event)
+			{
+				event.preventDefault();
+				
+				var form = $(this);
+				$.post(form.attr('action'), form.serialize(),
+					   function (data)
+					   {
+						   refresh();
+						   form.get(0).reset();
+					   }
+				);
+			}
+		);		
+	}
+);
+</script> 
+
+</head>
+
+<body onload="prettyPrint()">
+
+<div class="container">
+    
+    <div class="header">
+        <h1>Django-Cannen FTP</h1>
+    </div>
+    <div class="section">
+    <h2>Setup of FTP password</h2>
+    <p>To use the buildin FTP server, you need to set a password for your current user.</p>
+    </div>
+        <div class="example">
+            <div>
+                <form action="{% url cannen.views.ftp_set %}" method="post">
+                    <p>Username: <input type="text" name="username" value="{{ username }}" readonly="readonly"></p>
+                    <p>Password: <input type="password" name="password"></p>
+                    <p><input type="submit" value="Set"/></p>
+                    {% csrf_token %}
+                </form>
+
+                <p><a href="/">back</a></p>
+            </div>
+        </div>
+</div>
+
+</body>
+</html>

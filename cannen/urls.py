@@ -22,4 +22,7 @@ urlpatterns = patterns('cannen.views',
     url(r'move/(\d+)/([-+]?\d+)', 'move'),
     url(r'^info$', 'info'),
     url(r'^$', 'index'),
+    url(r'^ftp/', 'ftp',),
+    url(r'^ftp_set$', 'ftp_set'),
+
 )

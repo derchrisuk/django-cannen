@@ -19,6 +19,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.template import RequestContext
+from django.contrib.auth.models import User
 
 import backend
 from .models import UserSong, GlobalSong, SongFile, add_song_and_file
@@ -76,3 +77,21 @@ def add_file(request):
         return HttpResponseRedirect(reverse('cannen.views.index'))
     add_song_and_file(request.user, request.FILES['file'])
     return HttpResponseRedirect(reverse('cannen.views.index'))
+
+@login_required
+def ftp(request):
+    current_user = request.user
+    return render_to_response('ftp.html', {"username": current_user}, context_instance=RequestContext(request))
+
+@login_required
+def ftp_set(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    if password == '':
+        return render_to_response('ftp.html', {"username": username}, context_instance=RequestContext(request))
+    user = User.objects.get(username__exact=username)
+    user.set_password(password)
+    user.save()
+    password = '*'*password.__len__()
+    return render_to_response('ftp_set.html', {"username": username, "password": password}, context_instance=RequestContext(request))
+
